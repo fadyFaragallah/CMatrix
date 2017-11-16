@@ -20,7 +20,7 @@ if (argc == 1)
 			int equal=h.find("=");
 			int pos_open_square=h.find("[");
 			int pos_close_square=h.find("]");
-			if(equal== -1 ) {/*cin.ignore();*/ continue;}
+			if(equal== -1 ) {continue;}
 			if(pos_open_square!=-1 && pos_close_square== -1)
 			{
 				string x;
@@ -45,13 +45,14 @@ if (argc == 1)
 			int pos_open_square=s.find("[");
 			int pos_close_square=s.find("]");
 			if(equal== -1 ) {/*cin.ignore()*/; continue;}
-			if((pos_open_square!=-1) && (pos_close_square== -1))
+			if(pos_open_square!=-1 && pos_close_square== -1)
 			{
 				string x;
 				while(getline(file,x))
 				{
+
 					s+=x;
-					if(x.find(']')!= -1) {break;}
+					if(x.find(']')!=-1) {break;}
 				}
 			}
 			if(s[s.length()-1]==';')  {CMatrix::print=0;}

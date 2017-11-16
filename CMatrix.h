@@ -37,6 +37,10 @@ public:
 	CMatrix num_div_mat(double d);
 	void print_matrix(string name);
 
+	bool check_singularity();
+	CMatrix(int r,int c,string type);
+	CMatrix inv();
+
 	friend void create_matrix(string&s);
 	friend int check(string);
 	friend void dop(string&s);

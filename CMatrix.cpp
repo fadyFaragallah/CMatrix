@@ -233,7 +233,81 @@ void CMatrix::print_matrix(string name)
 		}
 	}
 
+////////////////////////////for the loving memory of jordan and guass/////////////////
 
+CMatrix::CMatrix(int r,int c,string type)
+{
+		nrows = r;
+		ncols = c;
+		pp_rows = new double*[r];
+		for (int i = 0; i<r; i++) pp_rows[i] = new double[c];
+		for (int i = 0; i<r; i++){
+			for (int j = 0; j<c; j++){
+				if(i==j) pp_rows[i][j]=1;
+				else pp_rows[i][j] = 0;
+			}
+		}
+}
+
+CMatrix CMatrix::inv()
+{
+	CMatrix m=*this;
+	CMatrix x(m.nrows,m.ncols,"unity");
+	for(int i=0;i<m.nrows;i++)
+	{
+		for(int j=0;j<m.ncols;j++)
+		{
+			double a=m.pp_rows[i][i];
+			m.pp_rows[i][j]/=a;
+			x.pp_rows[i][j]/=a;
+		}
+		for(int k=0;k<m.nrows;k++)
+		{
+			if(k==i) continue;
+			else 
+			{
+				for(int z=0;z<m.ncols;z++)
+				{
+					double b=m.pp_rows[k][i];
+					m.pp_rows[k][z]+=-1*b*m.pp_rows[i][z];
+					x.pp_rows[k][z]+=-1*b*x.pp_rows[i][z];
+				}
+			}
+		}
+	}
+	for(int i=0;i<m.nrows;i++)
+	{
+		for(int j=0;j<m.ncols;j++)
+			cout<<m.pp_rows[i][j]<<" \t";
+		cout<<endl;
+	}
+	for(int i=0;i<x.nrows;i++)
+	{
+		for(int j=0;j<x.ncols;j++)
+			cout<<x.pp_rows[i][j]<<" \t";
+		cout<<endl;
+	}
+	return x;
+}
+
+bool CMatrix::check_singularity()
+{
+	int zero=0;
+	for(int i=0;i<this->nrows-1;i++)
+	{
+		double a=pp_rows[i+1][0]/pp_rows[i][0];
+		for(int j=1;j<this->ncols;j++)
+		{
+			double b=pp_rows[i+1][j]/pp_rows[i][j];
+			if(a!=b) {break;}
+			if(j==this->ncols-1){zero=1;}
+		}
+		if(zero) break;
+	}
+	if(zero) return true;
+	else if(this->get_determinant()==0) return true;
+	else return false;
+}
 
 //////////////////////////////////parsing////////////////////////////////////////
 int check(string name)
@@ -425,9 +499,11 @@ void  dop(string&s)
 
 		if (my_operation[1] == "/")
 		{
-			if(v[b1].get_determinant()==0) cout<<"the second matrix has determinant of zero"<<endl;
+			//if(v[b1].get_determinant()==0) cout<<"the second matrix has determinant of zero"<<endl;
+			if(v[b1].check_singularity()) {cout<<"the matrix "<<names[b1]<<" is singular."<<endl; matched=0;}
 			else if ((v[a1].nrows == v[a1].ncols) && (v[b1].nrows == v[b1].ncols) && (v[a1].nrows == v[b1].ncols))
-				op_res = v[a1] / v[b1];
+			op_res = v[a1] / v[b1];
+			//op_res = v[a1]* v[b1].inv();
 			else { cout << "unmatched dimensions of the two matrices" << endl; matched = 0; }
 		}
 
@@ -525,7 +601,11 @@ void create_matrix(string &s)
 	while (s[j] != ']')
 	{
 		if (s[j] == ';')
+		{
+			if (s[j + 1] == ']')
+				n_rows--;
 			n_rows++;
+		}
 		j++;
 	}
 
