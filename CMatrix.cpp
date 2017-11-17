@@ -146,7 +146,7 @@ double CMatrix::get_determinant()
 CMatrix CMatrix::operator/(CMatrix &m)
 	{
 	//	if(m.nrows!=m.ncols || this->nrows!=this->ncols) {cout<<"non-square matrix"<<endl; return;}
-		double a=m.get_determinant();
+		double a=m.get_determinant_LU();
 	//	if (a==0) {cout<<"the determinant of the matrix=0"<<endl; return;}
 		CMatrix x(m.nrows,m.ncols); int sign=1;
 		for(int i=0;i<x.nrows;i++)
@@ -154,7 +154,7 @@ CMatrix CMatrix::operator/(CMatrix &m)
 			for(int j=0;j<x.ncols;j++)
 			{
 				if(i%2 != j%2) sign=-1; else sign=1;
-				x.set_element(i,j,sign*m.get_cofactor(i,j).get_determinant());
+				x.set_element(i,j,sign*m.get_cofactor(i,j).get_determinant_LU());
 				//sign*=-1;
 			}
 		}
@@ -305,8 +305,52 @@ bool CMatrix::check_singularity()
 		if(zero) break;
 	}
 	if(zero) return true;
-	else if(this->get_determinant()==0) return true;
+	else if(this->get_determinant_LU()==0) return true;
 	else return false;
+}
+
+double CMatrix::get_determinant_LU()
+{
+	CMatrix m=*this;
+	double det=1;
+	for(int i=0;i<m.nrows;i++)
+	{
+		double a=m.pp_rows[i][i];
+		if(a==0)
+		{
+			for(int x=i+1;x<m.nrows;x++)
+			{
+				int found=0;
+				if(m.pp_rows[x][i]!=0)
+				{
+					found=1;
+					a=m.pp_rows[x][i];
+					for(int y=0;y<m.ncols;y++)
+					{
+						double temp=m.pp_rows[i][y];
+						m.pp_rows[i][y]=m.pp_rows[x][y];
+						m.pp_rows[x][y]=temp;
+					}
+				}
+			if(found==1) {det*=-1; break;}
+			}
+		}
+		for(int j=i+1;j<m.nrows;j++)
+		{
+		//	a=m.pp_rows[i][i];
+			double b=m.pp_rows[j][i];
+			if(b==0) continue;
+			for(int k=0;k<m.ncols;k++)
+			{
+				double c=-b/a;
+				m.pp_rows[j][k]=m.pp_rows[j][k]+m.pp_rows[i][k]*c;
+			}
+		}
+	}
+	for(int i=0;i<m.nrows;i++) {det*=m.pp_rows[i][i];}
+//	for(int i=0;i<m.nrows;i++){for(int j=0;j<m.ncols;j++){cout<<m.pp_rows[i][j]<<"\t";}cout<<endl;}
+//	cout<<det;
+	return det;
 }
 
 //////////////////////////////////parsing////////////////////////////////////////

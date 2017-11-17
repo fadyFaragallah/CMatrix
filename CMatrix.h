@@ -40,6 +40,7 @@ public:
 	bool check_singularity();
 	CMatrix(int r,int c,string type);
 	CMatrix inv();
+	double get_determinant_LU();
 
 	friend void create_matrix(string&s);
 	friend int check(string);
